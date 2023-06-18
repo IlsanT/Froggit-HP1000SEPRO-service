@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <title>Home page</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+<body>
+<p>
+    <span>List of files</span>
+</p>
+
+<div th:if="${ not#lists.isEmpty(files)}">
+    <table>
+        <tr>
+            <th>File name</th>
+            <th>Raw response</th>
+            <th>File</th>
+        </tr>
+        <tr th:each="file : ${files}">
+            <td th:text="${file.name}"></td>
+            <td th:text="${file.raw}"></td>
+            <td><a
+                    th:href="@{/download/{name}(name=${file.name})}">
+                <button type="button">Download</button>
+            </a></td>
+        </tr>
+        </table>
+</div>
+</body>
+</html>
