@@ -24,17 +24,18 @@ class WeatherDataService(val fileService: FileService) {
         LOG.info("Storing request as-is received")
         fileService.storeRawRequestToFile(body)
     }
+
     private fun toLocalWeather(body: MultiValueMap<String, String>): LocalWeather {
         val capturedTime =
-            LocalDateTime.parse(retrieveValue("dateutc", body), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            convertToLocalDateTime(body)
         val insideTemp = convertFahrenheitToCelsius(retrieveValue("tempinf", body))
-        val insideHumidity = retrieveValue("humidityin", body).toDouble()
+        val insideHumidity = retrieveValue("humidityin", body).toDoubleOrNull()
         val pressureRelative = convertMercuryInchesToHectoPascal(retrieveValue("baromrelin", body))
         val pressureAbsolute = convertMercuryInchesToHectoPascal(retrieveValue("baromabsin", body))
         val outsideTemperature = convertFahrenheitToCelsius(retrieveValue("tempf", body))
-        val outsideHumidity = retrieveValue("humidity", body).toDouble()
-        val windDirection = retrieveValue("winddir", body).toDouble()
-        val windDirectionAverageTenMinutes = retrieveValue("winddir_avg10m", body).toDouble()
+        val outsideHumidity = retrieveValue("humidity", body).toDoubleOrNull()
+        val windDirection = retrieveValue("winddir", body).toDoubleOrNull()
+        val windDirectionAverageTenMinutes = retrieveValue("winddir_avg10m", body).toDoubleOrNull()
         val windSpeed = convertMilesToKms(retrieveValue("windspeedmph", body))
         val windSpeedAverageTenMinutes = convertMilesToKms(retrieveValue("windspdmph_avg10m", body))
         val windGust = convertMilesToKms(retrieveValue("windgustmph", body))
@@ -46,8 +47,8 @@ class WeatherDataService(val fileService: FileService) {
         val weeklyRain = convertInchesToMillimeters(retrieveValue("weeklyrainin", body))
         val monthlyRain = convertInchesToMillimeters(retrieveValue("monthlyrainin", body))
         val yearlyRain = convertInchesToMillimeters(retrieveValue("yearlyrainin", body))
-        val solarRadiation = retrieveValue("solarradiation", body).toDouble()
-        val uvIndex = retrieveValue("uv", body).toDouble()
+        val solarRadiation = retrieveValue("solarradiation", body).toDoubleOrNull()
+        val uvIndex = retrieveValue("uv", body).toDoubleOrNull()
         return LocalWeather(
             capturedTime = capturedTime, insideTemp = insideTemp,
             insideHumidity = insideHumidity, pressureRelative = pressureRelative,
@@ -62,26 +63,35 @@ class WeatherDataService(val fileService: FileService) {
         )
     }
 
+    private fun convertToLocalDateTime(body: MultiValueMap<String, String>): LocalDateTime? {
+    if(retrieveValue("dateutc",body).isEmpty()) return null
+    return LocalDateTime.parse(retrieveValue("dateutc", body), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+}
+
     private fun retrieveValue(key: String, body: MultiValueMap<String, String>): String {
         return body.getFirst(key).orEmpty()
     }
 
-    private fun convertFahrenheitToCelsius(fahrenheit: String): Double {
+    private fun convertFahrenheitToCelsius(fahrenheit: String): Double? {
+        if(fahrenheit.isEmpty()) return null
         val doubleValue = fahrenheit.toDouble()
         return String.format("%.2f", (doubleValue - 32) / 1.8).toDouble()
     }
 
-    private fun convertMilesToKms(miles: String): Double {
+    private fun convertMilesToKms(miles: String): Double? {
+        if(miles.isEmpty()) return null
         val doubleValue = miles.toDouble()
         return String.format("%.1f", doubleValue * 1.60934).toDouble()
     }
 
-    private fun convertInchesToMillimeters(inches: String, decimal: String = "1"): Double {
+    private fun convertInchesToMillimeters(inches: String, decimal: String = "1"): Double? {
+        if(inches.isEmpty()) return null
         val doubleValue = inches.toDouble()
         return String.format("%." + decimal + "f", doubleValue * 25.4).toDouble()
     }
 
-    private fun convertMercuryInchesToHectoPascal(inches: String): Double {
+    private fun convertMercuryInchesToHectoPascal(inches: String): Double? {
+        if(inches.isEmpty()) return null
         val doubleValue = inches.toDouble()
         return String.format("%.2f", doubleValue * 33.86388666666).toDouble()
     }

@@ -22,7 +22,7 @@ class FileController(val fileService: FileService) {
     @RequestMapping(method = [RequestMethod.GET], path = ["download/{name}"])
     fun downloadFile(@PathVariable("name") name: String): ResponseEntity<Resource> {
         val file = fileService.getResourceByName(name)
-        val headers = createHeaders(file)
+        val headers = createHeaders(file, name)
         return ResponseEntity<Resource>(file, headers, HttpStatus.OK)
     }
 
@@ -32,12 +32,12 @@ class FileController(val fileService: FileService) {
             .orElse(MediaType.APPLICATION_OCTET_STREAM)
     }
 
-    private fun createHeaders(resource: Resource): HttpHeaders {
+    private fun createHeaders(resource: Resource, fileName: String): HttpHeaders {
         val headers = HttpHeaders()
         headers.contentType = createMediaType(resource)
         val disposition = ContentDisposition
             .attachment()
-            .filename(resource.filename!!)
+            .filename(fileName)
             .build()
         headers.contentDisposition = disposition
         return headers

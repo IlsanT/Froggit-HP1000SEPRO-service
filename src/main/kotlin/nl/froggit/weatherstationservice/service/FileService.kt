@@ -5,17 +5,22 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.fasterxml.jackson.module.kotlin.readValue
 import nl.froggit.weatherstationservice.model.LocalWeather
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.Resource
-import org.springframework.core.io.ResourceLoader
-import org.springframework.core.io.support.ResourcePatternUtils
 import org.springframework.stereotype.Service
 import org.springframework.util.MultiValueMap
 import java.io.File
+import java.nio.file.Paths
 import java.time.LocalDate
 import java.util.logging.Logger
+import kotlin.io.path.readBytes
 
 @Service
-class FileService(val mapper: ObjectMapper, val resourceLoader: ResourceLoader) {
+class FileService(val mapper: ObjectMapper) {
+
+    @Value("\${file-location-path}")
+    lateinit var fileLocationPath: String
 
     companion object {
         val LOG = Logger.getLogger(FileService::class.java.name)
@@ -46,7 +51,9 @@ class FileService(val mapper: ObjectMapper, val resourceLoader: ResourceLoader) 
     }
 
     fun getResourceByName(name: String): Resource {
-        return resourceLoader.getResource("classpath:/$name")
+        val file = File("$fileLocationPath$name")
+        val path = Paths.get(file.absolutePath)
+        return ByteArrayResource(path.readBytes())
     }
 
     private fun createFileName(rawRequest: Boolean = false) : String {
@@ -57,7 +64,7 @@ class FileService(val mapper: ObjectMapper, val resourceLoader: ResourceLoader) 
 
     private fun createFile(rawRequest: Boolean = false) : File{
         val fileName = createFileName(rawRequest)
-        val file = File(fileName)
+        val file = File("$fileLocationPath$fileName")
         if(file.createNewFile()) {
             LOG.info("Created new file with name $fileName")
         }
@@ -65,10 +72,8 @@ class FileService(val mapper: ObjectMapper, val resourceLoader: ResourceLoader) 
     }
 
     private fun loadResources() : List<File> {
-        val resourcesPattern = "classpath:/*.log"
-        return ResourcePatternUtils.getResourcePatternResolver(resourceLoader)
-            .getResources(resourcesPattern)
-            .map { resource -> resource.file }
+        val files = File(fileLocationPath).listFiles()
+        return files?.filter { file -> file.name.contains("log") }.orEmpty().toList()
     }
 
     private fun isFileRawResponse(file: File) : Boolean {
