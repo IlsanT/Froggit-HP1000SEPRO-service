@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>nl.froggit</groupId>
 	<artifactId>weatherstation-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1</version>
 	<name>weatherstation-service</name>
 	<description>Spring boot service which accepts incoming weather data requests, stores and convert these</description>
 	<properties>
