@@ -58,8 +58,8 @@ class FileService(val mapper: ObjectMapper) {
 
     private fun createFileName(rawRequest: Boolean = false) : String {
         val currentDate = LocalDate.now()
-        val rawStringAddition = if(rawRequest) "-raw" else ""
-        return "weatherstationdata$rawStringAddition-$currentDate.log"
+        val fileExtension = if(rawRequest) ".txt" else ".json"
+        return "weatherstationdata-$currentDate$fileExtension"
     }
 
     private fun createFile(rawRequest: Boolean = false) : File{

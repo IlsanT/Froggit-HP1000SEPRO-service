@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>nl.froggit</groupId>
 	<artifactId>weatherstation-service</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1</version>
 	<name>weatherstation-service</name>
 	<description>Spring boot service which accepts incoming weather data requests, stores and convert these</description>
 	<properties>
@@ -42,6 +42,12 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ninja-squad</groupId>
+			<artifactId>springmockk</artifactId>
+			<version>4.0.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

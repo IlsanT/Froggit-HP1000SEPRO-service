@@ -12,6 +12,15 @@ This can be used when you don't wish to use sites as wunderground or ecowitt to 
 * Basic UI to view all files
 * Comes with a Docker image, see section Docker for more info
 
+## Versions
+
+Current latest version is 0.1
+
+### Changelog
+0.1 Released 16-07-2023
+
+Read [here](docs/changelog.md) the latest changelog.
+
 ## Usage
 
 ### Running on an IDE
@@ -58,8 +67,8 @@ This has been tested only with the Froggit HP1000 SE Pro weather station, with d
 
 ## Roadmap
 
-* Adding (more) unit tests
-* Rename file extensions to distinguish more easy what kind of file it is (e.g. json instead of log)
+* ~~Adding (more) unit tests~~
+* ~~Rename file extensions to distinguish more easy what kind of file it is (e.g. json instead of log)~~
 * Add more conversion units and make this configurable
 * Add Github actions to build the docker image
 * Create a nicer looking UI
