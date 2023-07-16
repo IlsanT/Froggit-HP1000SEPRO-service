@@ -3,7 +3,9 @@ import io.mockk.every
 import io.mockk.verify
 import nl.froggit.weatherstationservice.WeatherstationServiceApplication
 import nl.froggit.weatherstationservice.controller.FileController
+import nl.froggit.weatherstationservice.controller.WeatherDataController
 import nl.froggit.weatherstationservice.service.FileService
+import nl.froggit.weatherstationservice.service.WeatherDataService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -13,6 +15,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.util.LinkedMultiValueMap
 import java.io.File
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [WeatherstationServiceApplication::class])
@@ -69,5 +72,23 @@ class FileControllerIntegrationTests {
         assertThat(entity.body).isEqualTo(testFile)
         verify { fileService.getResourceByName(test) }
     }
+}
 
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [WeatherstationServiceApplication::class])
+@ExtendWith(SpringExtension::class)
+class WeatherDataControllerIntegrationTests {
+
+    @MockkBean
+    private lateinit var weatherDataService: WeatherDataService
+
+    @Autowired
+    private lateinit var weatherController: WeatherDataController
+    @Test
+    fun `Assert weatherdata can be received and stored`() {
+        every { weatherDataService.storeRawRequest(any()) } returns Unit
+        every { weatherDataService.processIncomingData(any())} returns Unit
+        assertThat(weatherController.receiveWeatherData(LinkedMultiValueMap()).statusCode).isEqualTo(HttpStatus.OK)
+        verify { weatherDataService.storeRawRequest(any()) }
+        verify { weatherDataService.processIncomingData(any()) }
+    }
 }
